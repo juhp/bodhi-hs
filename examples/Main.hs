@@ -10,4 +10,4 @@ main = do
   args <- getArgs
   let pkg = head args
   moverride <- bodhiOverride pkg
-  print $ (lookupKey' "expiration_date" <$> moverride :: Maybe LocalTime)
+  print (lookupKey' "expiration_date" <$> moverride :: Maybe LocalTime)
