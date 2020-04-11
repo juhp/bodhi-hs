@@ -41,7 +41,7 @@ import qualified Data.ByteString.Lazy.Char8 as BL
 import Data.Maybe
 import Data.Text (Text)
 import Data.Time.LocalTime
-import Network.HTTP.Conduit (queryString)
+--import Network.HTTP.Conduit (queryString)
 import Network.HTTP.Simple
 import System.FilePath ((</>))
 
@@ -149,7 +149,7 @@ queryBodhi :: Bool -> Query -> String -> IO Value
 queryBodhi debug params path = do
   let url = "https://" <> server </> path
   req <- setRequestQueryString params <$> parseRequest url
-  putStrLn $ url ++ B.unpack (queryString req)
+  -- putStrLn $ url ++ B.unpack (queryString req)
   res <- getResponseBody <$> httpJSON req
   when debug $
     BL.putStrLn $ encodePretty res
