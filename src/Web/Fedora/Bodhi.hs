@@ -26,7 +26,6 @@ module Web.Fedora.Bodhi
   , maybeKey
   ) where
 
-import Control.Monad
 #if (defined(VERSION_lens_aeson))
 import Control.Lens
 import Data.Aeson.Lens
@@ -34,14 +33,20 @@ import Data.Aeson.Lens
 import Lens.Micro
 import Lens.Micro.Aeson
 #endif
+#if (defined(VERSION_aeson_pretty))
 import Data.Aeson.Encode.Pretty
-import Data.Aeson.Types
-import qualified Data.ByteString.Char8 as B
 import qualified Data.ByteString.Lazy.Char8 as BL
+import Network.HTTP.Conduit (queryString)
+#endif
+import Data.Aeson.Types
+#if (defined(MIN_VERSION_http_conduit) && MIN_VERSION_http_conduit(2,3,1))
+#else
+import Data.ByteString (ByteString)
+#endif
+import qualified Data.ByteString.Char8 as B
 import Data.Maybe
 import Data.Text (Text)
 import Data.Time.LocalTime
---import Network.HTTP.Conduit (queryString)
 import Network.HTTP.Simple
 import System.FilePath ((</>))
 
@@ -55,7 +60,7 @@ server = "bodhi.fedoraproject.org"
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/overrides.html#service-0
 bodhiOverride :: String -> IO (Maybe Object)
 bodhiOverride nvr = do
-  res <- queryBodhi False [] $ "overrides" </> nvr
+  res <- queryBodhi [] $ "overrides" </> nvr
   return $ res ^? key "override" . _Object
 
 #if (defined(MIN_VERSION_http_conduit) && MIN_VERSION_http_conduit(2,3,1))
@@ -85,7 +90,7 @@ bodhiOverrideDates nvr = do
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/overrides.html#service-1
 bodhiOverrides :: Query -> IO [Object]
 bodhiOverrides params = do
-  res <- queryBodhi False params "overrides/"
+  res <- queryBodhi params "overrides/"
   return $ res ^.. key "overrides" . values . _Object
 
 -- | Packages query
@@ -93,7 +98,7 @@ bodhiOverrides params = do
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/packages.html#service-0
 bodhiPackages :: Query -> IO [Object]
 bodhiPackages params = do
-  res <- queryBodhi False params "packages/"
+  res <- queryBodhi params "packages/"
   return $ res ^.. key "packages" . values . _Object
 
 -- | read releases metadata from Bodhi
@@ -101,7 +106,7 @@ bodhiPackages params = do
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/releases.html#service-0
 bodhiRelease :: String -> IO (Maybe Object)
 bodhiRelease rel = do
-  res <- queryBodhi False [] $ "releases" </> rel
+  res <- queryBodhi [] $ "releases" </> rel
   return $ res ^? _Object
 
 -- | read releases metadata from Bodhi
@@ -109,7 +114,7 @@ bodhiRelease rel = do
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/releases.html#service-1
 bodhiReleases :: Query -> IO [Object]
 bodhiReleases params = do
-  res <- queryBodhi False params "releases/"
+  res <- queryBodhi params "releases/"
   return $ res ^.. key "releases" . values . _Object
 
 -- | read releases metadata from Bodhi
@@ -117,7 +122,7 @@ bodhiReleases params = do
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/updates.html#service-0
 bodhiUpdate :: String -> IO (Maybe Object)
 bodhiUpdate update = do
-  res <- queryBodhi False [] $ "updates" </> update
+  res <- queryBodhi [] $ "updates" </> update
   return $ res ^? key "update" . _Object
 
 -- | read releases metadata from Bodhi
@@ -125,7 +130,7 @@ bodhiUpdate update = do
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/updates.html#service-2
 bodhiUpdates :: Query -> IO [Object]
 bodhiUpdates params = do
-  res <- queryBodhi False params "updates/"
+  res <- queryBodhi params "updates/"
   return $ res ^.. key "updates" . values . _Object
 
 -- | user info from Bodhi
@@ -133,7 +138,7 @@ bodhiUpdates params = do
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/users.html#service-0
 bodhiUser :: String -> IO (Maybe Object)
 bodhiUser user = do
-  res <- queryBodhi False [] $ "users" </> user
+  res <- queryBodhi [] $ "users" </> user
   return $ res ^? _Object
 
 -- | list users from Bodhi
@@ -141,19 +146,22 @@ bodhiUser user = do
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/users.html#service-1
 bodhiUsers :: Query -> IO [Object]
 bodhiUsers params = do
-  res <- queryBodhi False params "users/"
+  res <- queryBodhi params "users/"
   return $ res ^.. key "users" . values . _Object
 
 -- | low-level query
-queryBodhi :: Bool -> Query -> String -> IO Value
-queryBodhi debug params path = do
-  let url = "https://" <> server </> path
+queryBodhi :: Query -> String -> IO Value
+queryBodhi params path = do
+  let url = "https://" ++ server </> path
   req <- setRequestQueryString params <$> parseRequest url
-  -- putStrLn $ url ++ B.unpack (queryString req)
+#if (defined(VERSION_aeson_pretty))
+  putStrLn $ url ++ B.unpack (queryString req)
   res <- getResponseBody <$> httpJSON req
-  when debug $
-    BL.putStrLn $ encodePretty res
+  BL.putStrLn $ encodePretty res
   return res
+#else
+  getResponseBody <$> httpJSON req
+#endif
 
 -- | Maybe create a query key
 maybeKey :: String -> Maybe String -> Query
