@@ -17,6 +17,8 @@ module Web.Fedora.Bodhi
   , bodhiReleases
   , bodhiUpdate
   , bodhiUpdates
+  , bodhiUser
+  , bodhiUsers
   , lookupKey
   , lookupKey'
   , queryBodhi
@@ -125,6 +127,22 @@ bodhiUpdates :: Query -> IO [Object]
 bodhiUpdates params = do
   res <- queryBodhi False params "updates/"
   return $ res ^.. key "updates" . values . _Object
+
+-- | user info from Bodhi
+--
+-- https://bodhi.fedoraproject.org/docs/server_api/rest/users.html#service-0
+bodhiUser :: String -> IO (Maybe Object)
+bodhiUser user = do
+  res <- queryBodhi False [] $ "users" </> user
+  return $ res ^? _Object
+
+-- | list users from Bodhi
+--
+-- https://bodhi.fedoraproject.org/docs/server_api/rest/users.html#service-1
+bodhiUsers :: Query -> IO [Object]
+bodhiUsers params = do
+  res <- queryBodhi False params "users/"
+  return $ res ^.. key "users" . values . _Object
 
 -- | low-level query
 queryBodhi :: Bool -> Query -> String -> IO Value
