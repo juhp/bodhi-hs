@@ -12,6 +12,7 @@ module Web.Fedora.Bodhi
   ( bodhiOverride
   , bodhiOverrides
   , bodhiOverrideDates
+  , bodhiPackages
   , bodhiRelease
   , bodhiReleases
   , bodhiUpdate
@@ -84,6 +85,14 @@ bodhiOverrides :: Query -> IO [Object]
 bodhiOverrides params = do
   res <- queryBodhi False params "overrides/"
   return $ res ^.. key "overrides" . values . _Object
+
+-- | Packages query
+--
+-- https://bodhi.fedoraproject.org/docs/server_api/rest/packages.html#service-0
+bodhiPackages :: Query -> IO [Object]
+bodhiPackages params = do
+  res <- queryBodhi False params "packages/"
+  return $ res ^.. key "packages" . values . _Object
 
 -- | read releases metadata from Bodhi
 --
