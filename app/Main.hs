@@ -1,7 +1,13 @@
 module Main (main) where
 
-import Bodhi (someFunc)
+import System.Environment
+import Web.Fedora.Bodhi
 
+import Data.Time.LocalTime
 
 main :: IO ()
-main = someFunc
+main = do
+  args <- getArgs
+  let pkg = head args
+  moverride <- bodhiOverride pkg
+  print $ (lookupKey' "expiration_date" <$> moverride :: Maybe LocalTime)
