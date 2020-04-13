@@ -23,6 +23,7 @@ module Web.Fedora.Bodhi
   , lookupKey'
   , queryBodhi
   , makeKey
+  , makeItem
   , maybeKey
   ) where
 
@@ -168,9 +169,13 @@ maybeKey :: String -> Maybe String -> Query
 maybeKey _ Nothing = []
 maybeKey k mval = [(B.pack k, fmap B.pack mval)]
 
--- | make a query key
+-- | make a singleton key-value Query
 makeKey :: String -> String -> Query
 makeKey k val = [(B.pack k, Just (B.pack val))]
+
+-- | make a key-value QueryItem
+makeItem :: String -> String -> QueryItem
+makeItem k val = (B.pack k, Just (B.pack val))
 
 -- | looks up key in object
 lookupKey :: FromJSON a => Text -> Object -> Maybe a
