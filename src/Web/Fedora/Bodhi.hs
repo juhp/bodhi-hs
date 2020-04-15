@@ -118,7 +118,7 @@ bodhiReleases params = do
   res <- queryBodhi params "releases/"
   return $ res ^.. key "releases" . values . _Object
 
--- | read releases metadata from Bodhi
+-- | read an update from Bodhi
 --
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/updates.html#service-0
 bodhiUpdate :: String -> IO (Maybe Object)
@@ -126,7 +126,7 @@ bodhiUpdate update = do
   res <- queryBodhi [] $ "updates" </> update
   return $ res ^? key "update" . _Object
 
--- | read releases metadata from Bodhi
+-- | search for updates on Bodhi
 --
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/updates.html#service-2
 bodhiUpdates :: Query -> IO [Object]
