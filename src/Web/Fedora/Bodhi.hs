@@ -40,7 +40,7 @@ import qualified Data.ByteString.Lazy.Char8 as BL
 import Network.HTTP.Conduit (queryString)
 #endif
 import Data.Aeson.Types
-#if (defined(MIN_VERSION_http_conduit) && MIN_VERSION_http_conduit(2,3,1))
+#if (defined(MIN_VERSION_http_conduit) && MIN_VERSION_http_conduit(2,3,3))
 #else
 import Data.ByteString (ByteString)
 #endif
@@ -67,6 +67,10 @@ bodhiOverride nvr = do
 #if (defined(MIN_VERSION_http_conduit) && MIN_VERSION_http_conduit(2,3,1))
 #else
 type Query = [(ByteString, Maybe ByteString)]
+#endif
+#if (defined(MIN_VERSION_http_conduit) && MIN_VERSION_http_conduit(2,3,3))
+#else
+type QueryItem = (ByteString, Maybe ByteString)
 #endif
 
 -- | Returns override expiration and submission dates for NVR
