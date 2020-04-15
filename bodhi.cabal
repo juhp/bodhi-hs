@@ -2,7 +2,10 @@ cabal-version:       1.22
 name:                bodhi
 version:             0.0.1
 synopsis:            Fedora Bodhi REST client library
-description:         Fedora Bodhi REST client library
+description:
+            A REST client library for the Fedora Bodhi updates server.
+            The binding is currently fairly low-level returning JSON Objects.
+            So far it covers nearly all of the GET part of the API.
 homepage:            https://github.com/juhp/bodhi-hs
 bug-reports:         https://github.com/juhp/bodhi-hs/issues
 license:             MIT
@@ -14,7 +17,7 @@ category:            Network
 build-type:          Simple
 extra-doc-files:     README.md
                      CHANGELOG.md
-                     example/Main.hs
+                     examples/Main.hs
 tested-with:         GHC == 8.0.2
                      GHC == 8.2.2
                      GHC == 8.4.4
@@ -49,6 +52,18 @@ library
       build-depends:   lens, lens-aeson
 
   ghc-options:         -Wall
+  if impl(ghc >= 8.0)
+    ghc-options:       -Wcompat
+                       -Widentities
+                       -Wincomplete-uni-patterns
+                       -Wincomplete-record-updates
+                       -Wredundant-constraints
+  if impl(ghc >= 8.2)
+    ghc-options:       -fhide-source-paths
+  if impl(ghc >= 8.4)
+    ghc-options:       -Wmissing-export-lists
+                       -Wpartial-fields
+
   default-language:    Haskell2010
   default-extensions:  OverloadedStrings
   hs-source-dirs:      src
