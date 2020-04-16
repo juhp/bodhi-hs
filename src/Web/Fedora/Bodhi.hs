@@ -13,6 +13,7 @@ module Web.Fedora.Bodhi
   , bodhiBuilds
   , bodhiComment
   , bodhiComments
+  , bodhiCSRF
   , bodhiOverride
   , bodhiOverrides
   , bodhiOverrideDates
@@ -89,6 +90,14 @@ bodhiComments :: Query -> IO [Object]
 bodhiComments params = do
   res <- queryBodhi params "comments/"
   return $ res ^.. key "comments" . values . _Object
+
+-- | Get CSRF token
+--
+-- https://bodhi.fedoraproject.org/docs/server_api/rest/csrf.html
+bodhiCSRF :: IO (Maybe Text)
+bodhiCSRF = do
+  res <- queryBodhi [] $ "csrf"
+  return $ res ^? key "csrf_token" . _String
 
 -- | Returns override JSON for NVR
 --
