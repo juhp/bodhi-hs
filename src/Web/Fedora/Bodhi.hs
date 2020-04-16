@@ -11,6 +11,8 @@ Fedora Bodhi REST client library
 module Web.Fedora.Bodhi
   ( bodhiBuild
   , bodhiBuilds
+  , bodhiComment
+  , bodhiComments
   , bodhiOverride
   , bodhiOverrides
   , bodhiOverrideDates
@@ -71,6 +73,22 @@ bodhiBuilds :: Query -> IO [Object]
 bodhiBuilds params = do
   res <- queryBodhi params "builds/"
   return $ res ^.. key "builds" . values . _Object
+
+-- | Returns comment JSON for id
+--
+-- https://bodhi.fedoraproject.org/docs/server_api/rest/comments.html#service-0
+bodhiComment :: String -> IO (Maybe Object)
+bodhiComment cid = do
+  res <- queryBodhi [] $ "comments" </> cid
+  return $ res ^? _Object
+
+-- | returns JSON list of comments
+--
+-- https://bodhi.fedoraproject.org/docs/server_api/rest/comments.html#service-1
+bodhiComments :: Query -> IO [Object]
+bodhiComments params = do
+  res <- queryBodhi params "comments/"
+  return $ res ^.. key "comments" . values . _Object
 
 -- | Returns override JSON for NVR
 --
