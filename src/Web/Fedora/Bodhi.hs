@@ -9,7 +9,9 @@ Fedora Bodhi REST client library
 -}
 
 module Web.Fedora.Bodhi
-  ( bodhiOverride
+  ( bodhiBuild
+  , bodhiBuilds
+  , bodhiOverride
   , bodhiOverrides
   , bodhiOverrideDates
   , bodhiPackages
@@ -54,7 +56,21 @@ import System.FilePath ((</>))
 server :: String
 server = "bodhi.fedoraproject.org"
 
--- https://bodhi.fedoraproject.org/docs/server_api/rest/overrides.html
+-- | Returns build JSON for NVR
+--
+-- https://bodhi.fedoraproject.org/docs/server_api/rest/builds.html#service-0
+bodhiBuild :: String -> IO (Maybe Object)
+bodhiBuild nvr = do
+  res <- queryBodhi [] $ "builds" </> nvr
+  return $ res ^? _Object
+
+-- | returns JSON list of builds
+--
+-- https://bodhi.fedoraproject.org/docs/server_api/rest/builds.html#service-1
+bodhiBuilds :: Query -> IO [Object]
+bodhiBuilds params = do
+  res <- queryBodhi params "builds/"
+  return $ res ^.. key "builds" . values . _Object
 
 -- | Returns override JSON for NVR
 --
