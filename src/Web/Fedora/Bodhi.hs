@@ -64,10 +64,10 @@ server = "bodhi.fedoraproject.org"
 -- | Returns build JSON for NVR
 --
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/builds.html#service-0
-bodhiBuild :: String -> IO (Maybe Object)
+bodhiBuild :: String -> IO Object
 bodhiBuild nvr = do
   res <- queryBodhi [] $ "builds" </> nvr
-  return $ res ^? _Object
+  return $ res ^. _Object
 
 -- | returns JSON list of builds
 --
@@ -80,10 +80,10 @@ bodhiBuilds params = do
 -- | Returns comment JSON for id
 --
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/comments.html#service-0
-bodhiComment :: String -> IO (Maybe Object)
+bodhiComment :: String -> IO Object
 bodhiComment cid = do
   res <- queryBodhi [] $ "comments" </> cid
-  return $ res ^? _Object
+  return $ res ^. _Object
 
 -- | returns JSON list of comments
 --
@@ -154,10 +154,10 @@ bodhiPackages params = do
 -- | read releases metadata from Bodhi
 --
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/releases.html#service-0
-bodhiRelease :: String -> IO (Maybe Object)
+bodhiRelease :: String -> IO Object
 bodhiRelease rel = do
   res <- queryBodhi [] $ "releases" </> rel
-  return $ res ^? _Object
+  return $ res ^. _Object
 
 -- | read releases metadata from Bodhi
 --
@@ -186,10 +186,10 @@ bodhiUpdates params = do
 -- | user info from Bodhi
 --
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/users.html#service-0
-bodhiUser :: String -> IO (Maybe Object)
+bodhiUser :: String -> IO Object
 bodhiUser user = do
   res <- queryBodhi [] $ "users" </> user
-  return $ res ^? _Object
+  return $ res ^. _Object
 
 -- | list users from Bodhi
 --
