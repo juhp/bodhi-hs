@@ -44,7 +44,7 @@ library
                      , http-conduit
                      , text
                      , time
-  if flag(microlens)
+  if flag(debug)
       build-depends:   aeson-pretty
   if flag(microlens)
       build-depends:   microlens, microlens-aeson
