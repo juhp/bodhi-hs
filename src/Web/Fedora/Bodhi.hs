@@ -30,6 +30,8 @@ module Web.Fedora.Bodhi
   , makeKey
   , makeItem
   , maybeKey
+  , Query
+  , QueryItem
   ) where
 
 #if (defined(VERSION_lens_aeson))
