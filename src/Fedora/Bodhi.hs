@@ -8,7 +8,7 @@ Maintainer: Jens Petersen <juhpetersen@gmail.com>
 Fedora Bodhi REST client library
 -}
 
-module Web.Fedora.Bodhi
+module Fedora.Bodhi
   ( bodhiBuild
   , bodhiBuilds
   , bodhiComment

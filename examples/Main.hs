@@ -1,7 +1,7 @@
 module Main (main) where
 
 import System.Environment
-import Web.Fedora.Bodhi
+import Fedora.Bodhi
 
 import Data.Time.LocalTime
 
