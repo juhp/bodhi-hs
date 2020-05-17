@@ -98,7 +98,7 @@ bodhiComments params = do
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/csrf.html
 bodhiCSRF :: IO (Maybe Text)
 bodhiCSRF = do
-  res <- queryBodhi [] $ "csrf"
+  res <- queryBodhi [] "csrf"
   return $ res ^? key "csrf_token" . _String
 
 -- | Returns override JSON for NVR
