@@ -1,1 +1,5 @@
-resolver: lts-14.27
+resolver: lts-15.16
+
+extra-deps:
+  - git: https://github.com/juhp/http-query.git
+    commit: c23eadb370e5341facd4716044e3ae70a0a4ceab

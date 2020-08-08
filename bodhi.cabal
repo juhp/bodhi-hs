@@ -39,9 +39,7 @@ flag debug
 library
   build-depends:       aeson
                      , base >= 4 && < 5
-                     , bytestring
-                     , filepath
-                     , http-conduit
+                     , http-query
                      , text
                      , time
   if flag(debug)

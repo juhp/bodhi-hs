@@ -41,22 +41,10 @@ import Data.Aeson.Lens
 import Lens.Micro
 import Lens.Micro.Aeson
 #endif
-#if (defined(VERSION_aeson_pretty))
-import Data.Aeson.Encode.Pretty
-import qualified Data.ByteString.Lazy.Char8 as BL
-import Network.HTTP.Conduit (queryString)
-#endif
 import Data.Aeson.Types
-#if (defined(MIN_VERSION_http_conduit) && MIN_VERSION_http_conduit(2,3,3))
-#else
-import Data.ByteString (ByteString)
-#endif
-import qualified Data.ByteString.Char8 as B
-import Data.Maybe
 import Data.Text (Text)
 import Data.Time.LocalTime
-import Network.HTTP.Simple
-import System.FilePath ((</>))
+import Network.HTTP.Query
 
 server :: String
 server = "bodhi.fedoraproject.org"
@@ -66,7 +54,7 @@ server = "bodhi.fedoraproject.org"
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/builds.html#service-0
 bodhiBuild :: String -> IO Object
 bodhiBuild nvr = do
-  res <- queryBodhi [] $ "builds" </> nvr
+  res <- queryBodhi [] $ "builds" +/+ nvr
   return $ res ^. _Object
 
 -- | returns JSON list of builds
@@ -82,7 +70,7 @@ bodhiBuilds params = do
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/comments.html#service-0
 bodhiComment :: String -> IO Object
 bodhiComment cid = do
-  res <- queryBodhi [] $ "comments" </> cid
+  res <- queryBodhi [] $ "comments" +/+ cid
   return $ res ^. _Object
 
 -- | returns JSON list of comments
@@ -106,17 +94,8 @@ bodhiCSRF = do
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/overrides.html#service-0
 bodhiOverride :: String -> IO (Maybe Object)
 bodhiOverride nvr = do
-  res <- queryBodhi [] $ "overrides" </> nvr
+  res <- queryBodhi [] $ "overrides" +/+ nvr
   return $ res ^? key "override" . _Object
-
-#if (defined(MIN_VERSION_http_conduit) && MIN_VERSION_http_conduit(2,3,1))
-#else
-type Query = [(ByteString, Maybe ByteString)]
-#endif
-#if (defined(MIN_VERSION_http_conduit) && MIN_VERSION_http_conduit(2,3,3))
-#else
-type QueryItem = (ByteString, Maybe ByteString)
-#endif
 
 -- | Returns override expiration and submission dates for NVR
 bodhiOverrideDates :: String -> IO (Maybe (LocalTime,LocalTime))
@@ -156,7 +135,7 @@ bodhiPackages params = do
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/releases.html#service-0
 bodhiRelease :: String -> IO Object
 bodhiRelease rel = do
-  res <- queryBodhi [] $ "releases" </> rel
+  res <- queryBodhi [] $ "releases" +/+ rel
   return $ res ^. _Object
 
 -- | read releases metadata from Bodhi
@@ -172,7 +151,7 @@ bodhiReleases params = do
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/updates.html#service-0
 bodhiUpdate :: String -> IO (Maybe Object)
 bodhiUpdate update = do
-  res <- queryBodhi [] $ "updates" </> update
+  res <- queryBodhi [] $ "updates" +/+ update
   return $ res ^? key "update" . _Object
 
 -- | search for updates on Bodhi
@@ -188,7 +167,7 @@ bodhiUpdates params = do
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/users.html#service-0
 bodhiUser :: String -> IO Object
 bodhiUser user = do
-  res <- queryBodhi [] $ "users" </> user
+  res <- queryBodhi [] $ "users" +/+ user
   return $ res ^. _Object
 
 -- | list users from Bodhi
@@ -201,36 +180,6 @@ bodhiUsers params = do
 
 -- | low-level query
 queryBodhi :: Query -> String -> IO Value
-queryBodhi params path = do
-  let url = "https://" ++ server </> path
-  req <- setRequestQueryString params <$> parseRequest url
-#if (defined(VERSION_aeson_pretty))
-  putStrLn $ url ++ B.unpack (queryString req)
-  res <- getResponseBody <$> httpJSON req
-  BL.putStrLn $ encodePretty res
-  return res
-#else
-  getResponseBody <$> httpJSON req
-#endif
-
--- | Maybe create a query key
-maybeKey :: String -> Maybe String -> Query
-maybeKey _ Nothing = []
-maybeKey k mval = [(B.pack k, fmap B.pack mval)]
-
--- | make a singleton key-value Query
-makeKey :: String -> String -> Query
-makeKey k val = [(B.pack k, Just (B.pack val))]
-
--- | make a key-value QueryItem
-makeItem :: String -> String -> QueryItem
-makeItem k val = (B.pack k, Just (B.pack val))
-
--- | looks up key in object
-lookupKey :: FromJSON a => Text -> Object -> Maybe a
-lookupKey k = parseMaybe (.: k)
-
--- | like lookupKey but raises an error if no key found
-lookupKey' :: FromJSON a => Text -> Object -> a
-lookupKey' k obj =
-  fromMaybe (error ("no key: " ++ show k)) (lookupKey k obj)
+queryBodhi params path =
+  let url = "https://" ++ server +/+ path
+  in webAPIQuery url path params
