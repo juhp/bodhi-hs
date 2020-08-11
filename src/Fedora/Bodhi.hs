@@ -182,4 +182,4 @@ bodhiUsers params = do
 queryBodhi :: Query -> String -> IO Value
 queryBodhi params path =
   let url = "https://" ++ server +/+ path
-  in webAPIQuery url path params
+  in webAPIQuery url params
