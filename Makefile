@@ -3,7 +3,7 @@
 stack-all:
 	stack $(FLAG) --resolver nightly build
 	@echo
-	stack $(FLAG) --resolver lts build
+	stack $(FLAG) --resolver lts-16 build
 	@echo
 	stack $(FLAG) --resolver lts-14 build
 	@echo
