@@ -142,6 +142,8 @@ bodhiRelease rel = do
 --
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/releases.html#service-1
 bodhiReleases :: Query -> IO [Object]
+-- FIXME handle errors:
+-- fromList [("status",String "error"),("errors",Array [Object (fromList [("location",String "body"),("name",String "name"),("description",String "No such release")])])]
 bodhiReleases params = do
   res <- queryBodhi params "releases/"
   return $ res ^.. key "releases" . values . _Object
