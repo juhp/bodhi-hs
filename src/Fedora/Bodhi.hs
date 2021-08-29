@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP, OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 {- |
 Copyright: (c) 2020 Jens Petersen
@@ -34,13 +34,6 @@ module Fedora.Bodhi
   , QueryItem
   ) where
 
-#if (defined(VERSION_lens_aeson))
-import Control.Lens
-import Data.Aeson.Lens
-#else
-import Lens.Micro
-import Lens.Micro.Aeson
-#endif
 import Data.Aeson.Types
 import Data.Text (Text)
 import Data.Time.LocalTime
@@ -53,49 +46,43 @@ server = "bodhi.fedoraproject.org"
 --
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/builds.html#service-0
 bodhiBuild :: String -> IO Object
-bodhiBuild nvr = do
-  res <- queryBodhi [] $ "builds" +/+ nvr
-  return $ res ^. _Object
+bodhiBuild nvr =
+  queryBodhi [] $ "builds" +/+ nvr
 
 -- | returns JSON list of builds
 --
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/builds.html#service-1
 bodhiBuilds :: Query -> IO [Object]
-bodhiBuilds params = do
-  res <- queryBodhi params "builds/"
-  return $ res ^.. key "builds" . values . _Object
+bodhiBuilds params =
+  lookupKey' "builds" <$> queryBodhi params "builds/"
 
 -- | Returns comment JSON for id
 --
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/comments.html#service-0
 bodhiComment :: String -> IO Object
-bodhiComment cid = do
-  res <- queryBodhi [] $ "comments" +/+ cid
-  return $ res ^. _Object
+bodhiComment cid =
+  queryBodhi [] $ "comments" +/+ cid
 
 -- | returns JSON list of comments
 --
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/comments.html#service-1
 bodhiComments :: Query -> IO [Object]
-bodhiComments params = do
-  res <- queryBodhi params "comments/"
-  return $ res ^.. key "comments" . values . _Object
+bodhiComments params =
+  lookupKey' "comments" <$> queryBodhi params "comments/"
 
 -- | Get CSRF token
 --
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/csrf.html
 bodhiCSRF :: IO (Maybe Text)
-bodhiCSRF = do
-  res <- queryBodhi [] "csrf"
-  return $ res ^? key "csrf_token" . _String
+bodhiCSRF =
+  lookupKey "csrf_token" <$> queryBodhi [] "csrf"
 
 -- | Returns override JSON for NVR
 --
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/overrides.html#service-0
 bodhiOverride :: String -> IO (Maybe Object)
-bodhiOverride nvr = do
-  res <- queryBodhi [] $ "overrides" +/+ nvr
-  return $ res ^? key "override" . _Object
+bodhiOverride nvr =
+  lookupKey "override" <$> queryBodhi [] ("overrides" +/+ nvr)
 
 -- | Returns override expiration and submission dates for NVR
 bodhiOverrideDates :: String -> IO (Maybe (LocalTime,LocalTime))
@@ -118,25 +105,22 @@ bodhiOverrideDates nvr = do
 --
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/overrides.html#service-1
 bodhiOverrides :: Query -> IO [Object]
-bodhiOverrides params = do
-  res <- queryBodhi params "overrides/"
-  return $ res ^.. key "overrides" . values . _Object
+bodhiOverrides params =
+  lookupKey' "overrides" <$> queryBodhi params "overrides/"
 
 -- | Packages query
 --
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/packages.html#service-0
 bodhiPackages :: Query -> IO [Object]
-bodhiPackages params = do
-  res <- queryBodhi params "packages/"
-  return $ res ^.. key "packages" . values . _Object
+bodhiPackages params =
+  lookupKey' "packages" <$> queryBodhi params "packages/"
 
 -- | read releases metadata from Bodhi
 --
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/releases.html#service-0
 bodhiRelease :: String -> IO Object
-bodhiRelease rel = do
-  res <- queryBodhi [] $ "releases" +/+ rel
-  return $ res ^. _Object
+bodhiRelease rel =
+  queryBodhi [] $ "releases" +/+ rel
 
 -- | read releases metadata from Bodhi
 --
@@ -144,44 +128,39 @@ bodhiRelease rel = do
 bodhiReleases :: Query -> IO [Object]
 -- FIXME handle errors:
 -- fromList [("status",String "error"),("errors",Array [Object (fromList [("location",String "body"),("name",String "name"),("description",String "No such release")])])]
-bodhiReleases params = do
-  res <- queryBodhi params "releases/"
-  return $ res ^.. key "releases" . values . _Object
+bodhiReleases params =
+  lookupKey' "releases" <$> queryBodhi params "releases/"
 
 -- | read an update from Bodhi
 --
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/updates.html#service-0
 bodhiUpdate :: String -> IO (Maybe Object)
-bodhiUpdate update = do
-  res <- queryBodhi [] $ "updates" +/+ update
-  return $ res ^? key "update" . _Object
+bodhiUpdate update =
+  lookupKey "update" <$> queryBodhi [] ("updates" +/+ update)
 
 -- | search for updates on Bodhi
 --
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/updates.html#service-2
 bodhiUpdates :: Query -> IO [Object]
-bodhiUpdates params = do
-  res <- queryBodhi params "updates/"
-  return $ res ^.. key "updates" . values . _Object
+bodhiUpdates params =
+  lookupKey' "updates" <$> queryBodhi params "updates/"
 
 -- | user info from Bodhi
 --
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/users.html#service-0
 bodhiUser :: String -> IO Object
-bodhiUser user = do
-  res <- queryBodhi [] $ "users" +/+ user
-  return $ res ^. _Object
+bodhiUser user =
+  queryBodhi [] $ "users" +/+ user
 
 -- | list users from Bodhi
 --
 -- https://bodhi.fedoraproject.org/docs/server_api/rest/users.html#service-1
 bodhiUsers :: Query -> IO [Object]
-bodhiUsers params = do
-  res <- queryBodhi params "users/"
-  return $ res ^.. key "users" . values . _Object
+bodhiUsers params =
+  lookupKey' "users" <$> queryBodhi params "users/"
 
 -- | low-level query
-queryBodhi :: Query -> String -> IO Value
+queryBodhi :: FromJSON a => Query -> String -> IO a
 queryBodhi params path =
   let url = "https://" ++ server +/+ path
   in webAPIQuery url params
