@@ -1,6 +1,6 @@
 cabal-version:       1.22
 name:                bodhi
-version:             0.0.1
+version:             0.1.0
 synopsis:            Fedora Bodhi REST client library
 description:
             A REST client library for the Fedora Bodhi updates server.
