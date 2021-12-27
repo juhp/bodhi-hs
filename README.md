@@ -6,3 +6,6 @@
 [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 Fedora Bodhi REST client library
+
+[Bodhi](https://bodhi.fedoraproject.org/) is Fedora package update system.
+The API is documented at <https://bodhi.fedoraproject.org/docs/>.
